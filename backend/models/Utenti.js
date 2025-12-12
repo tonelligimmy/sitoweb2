@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+// Definisce un nuovo schema Mongoose per la collezione 'utenti'
 const Utenti = new mongoose.Schema({
             
             username: { type: String, required: true, unique: true },
