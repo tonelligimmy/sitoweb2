@@ -1,17 +1,27 @@
+// Importa il framework Express.
 const express = require('express');
-const bcrypt = require('bcryptjs');
-const Utenti = require('../models/Utenti');
-const router = express.Router();
 
+// Importa la libreria per l'hashing delle password.
+const bcrypt = require('bcryptjs');
+
+// Importa il modello Mongoose 'Utenti' 
+const Utenti = require('../models/Utenti');
+// Crea un'istanza di Express Router
+const router = express.Router();
+// Importa il middleware di autenticazione (JWT)
 const authMiddleware = require('../middlewares/authMiddleware');
 
+
+// Importa il modulo e recupera la chiave segreta
 const jwt = require('jsonwebtoken');
 const SECRET = process.env.JWT_SECRET;
 
+// Funzione helper per l'hashing asincrono della password.
 async function hashPassword(password) {
     return await bcrypt.hash(password, 10);
 }
 
+// Middleware personalizzato per controllare i conflitti
 const Controllo409 = async (req, res, next) => {
     const { username, email } = req.body;
 
@@ -24,6 +34,7 @@ const Controllo409 = async (req, res, next) => {
     else if (email && user.email === email) conflict = 'email';
     return res.status(409).json({ message: `Conflitto: ${conflict} già in uso`, field: conflict });
     }
+    // Se non ci sono conflitti, passa al gestore successivo
     next();
     } catch (error) {
         console.error("Errore durante il controllo dell'utente:", error);
@@ -31,13 +42,14 @@ const Controllo409 = async (req, res, next) => {
     }
 };
 
-
+// Route POST per la registrazione. Il middleware Controllo409 viene eseguito per primo.
 router.post('/register',Controllo409, async (req, res) => {
     const { username, password, email, nome, cognome, dataNascita, piattiPreferiti, ricettario } = req.body;
 
     try{
+      //Hashing della password.
         const hashedPassword = await hashPassword(password);
-
+// Creazione di una nuova istanza del modello Utenti.
         const newUser = new Utenti({
             username,
             passwordHash: hashedPassword,
@@ -48,9 +60,9 @@ router.post('/register',Controllo409, async (req, res) => {
             piattiPreferiti,
             ricettario
         });
-
+// Salvataggio dell'utente nel database MongoDB.
         await newUser.save();
-
+// Risposta con status 201 .
         res.status(201).json({ message: "Registrazione avvenuta con successo" });
     }catch (error) {
     console.error("Errore durante la registrazione:", error);
@@ -67,17 +79,21 @@ router.post('/register',Controllo409, async (req, res) => {
 });
 
 
-
+// Route per l'accesso.
 router.post('/login', async (req, res) => {
     const { username, password } = req.body;
 
   try {
+    //  Cerca l'utente per username.
     const user = await Utenti.findOne({ username });
     if (!user) return res.status(401).json({ message: "Credenziali non valide" });
 
+    // Confronta la password fornita con l'hash memorizzato nel database.
     const valid = await bcrypt.compare(password, user.passwordHash);
     if (!valid) return res.status(401).json({ message: "Credenziali non valide" });
 
+    
+    // Generazione del JWT.
     const token = jwt.sign({ id: user._id, username: user.username }, SECRET, { expiresIn: '1h' });
 
     res.status(200).json({ message: "Login effettuato con successo", token });
@@ -87,7 +103,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
-
+// Route per il cambio password.
 router.post('/change-password', authMiddleware, async (req, res) => {
   const { currentPassword, newPassword } = req.body;
   try {
@@ -111,5 +127,5 @@ router.post('/change-password', authMiddleware, async (req, res) => {
 
 
 
-
+// Esporta il router per essere utilizzato nell'applicazione principale (server.js o app.js).
 module.exports = router;
