@@ -1,13 +1,20 @@
+// Importa la libreria React .
 import React, { useState } from "react";
+// Importa il componente Navbar per la navigazione.
 import Navbar from "../components/Navbar";
+// Importa il modulo di autenticazione per recuperare il token necessario per l'API.
 import auth from "../services/auth";
+// Importa l'hook per la navigazione programmatica.
 import { useNavigate } from "react-router-dom";
 
+// Definizione dell'URL base per le chiamate API del backend.
 const API_URL = "http://localhost:3000/api";
 
+// Componente funzionale principale.
 
 function AddRecipePage() {
     const navigate = useNavigate();
+    // Hook di stato per memorizzare i dati del form
     const [form, setForm] = useState({
         titolo: "",
         descrizione: "",
@@ -15,15 +22,20 @@ function AddRecipePage() {
         istruzioni: "",
         imageUrl: "",
     });
+    // Hook di stato per il feedback visivo durante la API
     const [loading, setLoading] = useState(false);
 
+   // Gestisce il cambiamento di input in tutti i campi 
     const handleChange = (e) => {
+       
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
+    // Gestisce l'invio del form.
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        // Validazione lato client: controlla che i campi obbligatori non siano vuoti.
         if (
             !form.titolo.trim() ||
             !form.descrizione.trim() ||
@@ -34,45 +46,56 @@ function AddRecipePage() {
             return;
         }
 
-        setLoading(true);
+        setLoading(true); // Imposta lo stato di caricamento su true.
 
         try {
+            // Conversione della stringa di ingredienti in un array di stringhe.
             const ingredientsArray = form.ingredienti
+           
             .split(",")
             .map((i) => i.trim())
             .filter((i) => i.length > 0); 
 
+            // Esegue la chiamata dopo all'API del backend.
             const res = await fetch(`${API_URL}/recipes/local`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                //  Invia il token JWT per l'autenticazione sul backend.
                 Authorization: `Bearer ${auth.getToken()}`,
             },
             body: JSON.stringify({
                 titolo: form.titolo,
                 descrizione: form.descrizione,
-                ingredienti: ingredientsArray,
+                ingredienti: ingredientsArray, // Invia l'array preparato.
                 istruzioni: form.istruzioni,
+                // Assicura che imageUrl sia null se l'input è vuoto.
                 imageUrl: form.imageUrl?.trim() || null, 
             }),
             });
 
+            // Gestione degli errori HTTP 
             if (!res.ok) throw new Error(`Errore HTTP ${res.status}`);
 
             const data = await res.json();
             console.log("Ricetta salvata:", data);
 
+           
             alert("✅ Ricetta aggiunta con successo!");
             navigate("/profile");
+            
         } catch (error) {
+            // Gestione di tutti gli altri errori 
             console.error("❌ Errore durante la creazione della ricetta:", error);
             alert("Errore durante la creazione della ricetta");
         } finally {
-            setLoading(false);
+            setLoading(false); // Reimposta lo stato di caricamento indipendentemente dal successo/fallimento.
         }
-        };
+    };
+       
 
     return (
+        // Contenitore principale degli stili di sfondo
         <div style={{ backgroundColor: "#f9f9f9", minHeight: "100vh" }}>
             <Navbar />
 

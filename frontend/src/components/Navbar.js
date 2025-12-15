@@ -1,17 +1,25 @@
+// Importa la libreria React 
 import React, { useState } from "react";
+// Importa un modulo di servizio che gestisce la logica di autenticazione
+//  (es. login, logout, check autenticazione).
 import auth from "../services/auth";
+// Importa Link per la navigazione tra le pagine senza ricaricare
 import { Link, useNavigate } from "react-router-dom";
 
 function Navbar() {
+  //visibilità del menu a tendina del profilo
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
-
+// Funzione gestore per il logout
   const handleLogout = () => {
+    // Chiama la funzione di logout
     auth.logout();
+    //Porta l'utente alla pagina di login.
     navigate("/login");
   };
 
   return (
+    // Elemento principale della barra di navigazione e sfrutta le classi di CSS
     <nav
       className="navbar shadow-sm px-4 py-3"
       style={{

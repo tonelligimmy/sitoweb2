@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 
+// esegue l'importazione delle librerie necessarie React e definisce le variabili di stato
 const API_URL = "http://localhost:3000/api";
 
 function EditRecipePage() {
@@ -18,14 +19,16 @@ function EditRecipePage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // Carica dati ricetta
+  // L'hook useEffect gestisce la fase di caricamento dei dati esistenti.
+  //Il codice effettua una chiamata GET al backend
   useEffect(() => {
     async function loadRecipe() {
       try {
         const res = await fetch(`${API_URL}/recipes/local/${id}`);
         if (!res.ok) throw new Error("Errore nel caricamento della ricetta");
         const data = await res.json();
-
+//Il compito principale di questa funzione è popolare gli stati del form
+//con i dati originali, permettendo all'utente di vedere e modificare i valori attuali.
         setTitolo(data.titolo || "");
         setDescrizione(data.descrizione || "");
         setIngredienti((data.ingredienti || []).join(", "));
@@ -48,7 +51,7 @@ function EditRecipePage() {
     setError("");
     setSuccess("");
 
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token"); // Recupera il token JWT.
     if (!token) {
       setError("Devi essere loggato per modificare una ricetta.");
       return;
@@ -65,7 +68,7 @@ function EditRecipePage() {
         istruzioni,
         imageUrl,
       };
-
+// Esegue la chiamata API per l'aggiornamento.
       const res = await fetch(`${API_URL}/recipes/local/${id}`, {
         method: "PATCH",
         headers: {
@@ -83,7 +86,7 @@ function EditRecipePage() {
       setError("Impossibile aggiornare la ricetta.");
     }
   };
-
+// Messaggio di caricamento
   if (loading) {
     return (
       <div className="text-center py-5 bg-light min-vh-100">
@@ -92,7 +95,7 @@ function EditRecipePage() {
       </div>
     );
   }
-
+// Messaggio di errore critico
   if (error && !titolo) {
     return (
       <div className="text-center py-5 bg-light min-vh-100">
@@ -103,6 +106,8 @@ function EditRecipePage() {
   }
 
   return (
+    // Struttura HTML/JSX del form
+    // Campi di input controllati
     <div
       className="min-vh-100 d-flex flex-column"
       style={{

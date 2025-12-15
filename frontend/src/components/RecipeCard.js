@@ -1,5 +1,5 @@
 import React from "react";
-
+// Definizione del componente funzionale RecipeCard.
 function RecipeCard({ title, image, onClick }) {
   return (
     <div
@@ -10,11 +10,16 @@ function RecipeCard({ title, image, onClick }) {
         backgroundColor: "#fffdfb", 
         transition: "transform 0.2s ease, box-shadow 0.2s ease",
       }}
+      // Quando la scheda viene cliccata, esegue la funzione 
+      // 'onClick' passata come prop.
       onClick={onClick}
+      // Gestore di evento: quando il mouse entra nella scheda succede che la 
+      // scheda scala leggermente e aumenta ombra per un effetto 3D.
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = "scale(1.03)";
         e.currentTarget.style.boxShadow = "0 6px 15px rgba(0,0,0,0.15)";
       }}
+      // Gestore di evento: quando il mouse lascia scheda riporta la scheda allo stato originale.
       onMouseLeave={(e) => {
         e.currentTarget.style.transform = "scale(1)";
         e.currentTarget.style.boxShadow = "0 3px 8px rgba(0,0,0,0.1)";
