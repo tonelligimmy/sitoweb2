@@ -43,7 +43,7 @@ function HomePage() {
     }
   };
 
-  // se il campo di ricerca è vuoto, mostra ricette casuali
+  // se il campo di ricerca è vuoto, mostra ricette casualiii
   const handleInputChange = (e) => {
     const value = e.target.value;
     setQuery(value);
